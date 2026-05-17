@@ -5,13 +5,13 @@ services:
       dockerfile: ./apps/web/Dockerfile.web
       args:
         DOCKER_BUILDKIT: 1
-        VITE_API_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-        VITE_WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-        VITE_ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+        VITE_API_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
         VITE_ADMIN_BASE_PATH: /god-mode
-        VITE_SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+        VITE_SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
         VITE_SPACE_BASE_PATH: /spaces
-        VITE_LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+        VITE_LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
         VITE_LIVE_BASE_PATH: /live
     restart: always
     depends_on:
@@ -23,13 +23,13 @@ services:
       dockerfile: ./apps/admin/Dockerfile.admin
       args:
         DOCKER_BUILDKIT: 1
-        VITE_API_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-        VITE_WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-        VITE_ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+        VITE_API_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
         VITE_ADMIN_BASE_PATH: /god-mode
-        VITE_SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+        VITE_SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
         VITE_SPACE_BASE_PATH: /spaces
-        VITE_LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+        VITE_LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
         VITE_LIVE_BASE_PATH: /live
     restart: always
     depends_on:
@@ -42,13 +42,13 @@ services:
       dockerfile: ./apps/space/Dockerfile.space
       args:
         DOCKER_BUILDKIT: 1
-        VITE_API_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-        VITE_WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-        VITE_ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+        VITE_API_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
         VITE_ADMIN_BASE_PATH: /god-mode
-        VITE_SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+        VITE_SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
         VITE_SPACE_BASE_PATH: /spaces
-        VITE_LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+        VITE_LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
         VITE_LIVE_BASE_PATH: /live
     restart: always
     depends_on:
@@ -66,14 +66,14 @@ services:
     environment:
       DEBUG: ${DEBUG:-0}
       SECRET_KEY: ${SERVICE_BASE64_DJANGOSECRET}
-      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       ADMIN_BASE_PATH: /god-mode
-      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       SPACE_BASE_PATH: /spaces
-      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       LIVE_BASE_PATH: /live
       GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
       PORT: 8000
@@ -123,14 +123,14 @@ services:
     environment:
       DEBUG: ${DEBUG:-0}
       SECRET_KEY: ${SERVICE_BASE64_DJANGOSECRET}
-      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       ADMIN_BASE_PATH: /god-mode
-      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       SPACE_BASE_PATH: /spaces
-      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       LIVE_BASE_PATH: /live
       GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
       POSTGRES_USER: ${POSTGRES_USER:-plane}
@@ -180,14 +180,14 @@ services:
     environment:
       DEBUG: ${DEBUG:-0}
       SECRET_KEY: ${SERVICE_BASE64_DJANGOSECRET}
-      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       ADMIN_BASE_PATH: /god-mode
-      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       SPACE_BASE_PATH: /spaces
-      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       LIVE_BASE_PATH: /live
       GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
       POSTGRES_USER: ${POSTGRES_USER:-plane}
@@ -238,14 +238,14 @@ services:
     environment:
       DEBUG: ${DEBUG:-0}
       SECRET_KEY: ${SERVICE_BASE64_DJANGOSECRET}
-      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       ADMIN_BASE_PATH: /god-mode
-      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       SPACE_BASE_PATH: /spaces
-      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       LIVE_BASE_PATH: /live
       GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
       POSTGRES_USER: ${POSTGRES_USER:-plane}
@@ -293,8 +293,8 @@ services:
     environment:
       PORT: 3000
       API_BASE_URL: http://api:8000
-      WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
-      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       LIVE_BASE_PATH: /live
       LIVE_SERVER_SECRET_KEY: ${SERVICE_BASE64_LIVESECRET}
       REDIS_HOST: plane-redis
@@ -350,7 +350,7 @@ services:
         DOCKER_BUILDKIT: 1
     restart: always
     environment:
-      ONE_PLANNER_URL: ${ONE_PLANNER_PUBLIC_URL:-http://proxy-x2in1axog5a0ljb7d8pbbwig.178.156.214.10.sslip.io}
+      ONE_PLANNER_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
       FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
       BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
       SITE_ADDRESS: :80
