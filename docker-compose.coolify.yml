@@ -1,0 +1,251 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile.web
+      args:
+        DOCKER_BUILDKIT: 1
+        VITE_API_BASE_URL: ""
+        VITE_ADMIN_BASE_URL: ""
+        VITE_ADMIN_BASE_PATH: /god-mode
+        VITE_LIVE_BASE_URL: ""
+        VITE_LIVE_BASE_PATH: /live
+        VITE_SPACE_BASE_URL: ""
+        VITE_SPACE_BASE_PATH: /spaces
+        VITE_WEB_BASE_URL: ""
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  admin:
+    build:
+      context: .
+      dockerfile: ./apps/admin/Dockerfile.admin
+      args:
+        DOCKER_BUILDKIT: 1
+        VITE_API_BASE_URL: ""
+        VITE_API_BASE_PATH: /api
+        VITE_ADMIN_BASE_URL: ""
+        VITE_ADMIN_BASE_PATH: /god-mode
+        VITE_LIVE_BASE_URL: ""
+        VITE_LIVE_BASE_PATH: /live
+        VITE_SPACE_BASE_URL: ""
+        VITE_SPACE_BASE_PATH: /spaces
+        VITE_WEB_BASE_URL: ""
+        VITE_WEB_BASE_PATH: ""
+        VITE_WEBSITE_URL: ${PLANE_WEBSITE_URL:-https://plane.so}
+        VITE_SUPPORT_EMAIL: ${PLANE_SUPPORT_EMAIL:-support@plane.so}
+    restart: unless-stopped
+    depends_on:
+      - api
+      - web
+
+  space:
+    build:
+      context: .
+      dockerfile: ./apps/space/Dockerfile.space
+      args:
+        DOCKER_BUILDKIT: 1
+        VITE_API_BASE_URL: ""
+        VITE_API_BASE_PATH: /api
+        VITE_ADMIN_BASE_URL: ""
+        VITE_ADMIN_BASE_PATH: /god-mode
+        VITE_LIVE_BASE_URL: ""
+        VITE_LIVE_BASE_PATH: /live
+        VITE_SPACE_BASE_URL: ""
+        VITE_SPACE_BASE_PATH: /spaces
+        VITE_WEB_BASE_URL: ""
+        VITE_WEB_BASE_PATH: ""
+        VITE_WEBSITE_URL: ${PLANE_WEBSITE_URL:-https://plane.so}
+        VITE_SUPPORT_EMAIL: ${PLANE_SUPPORT_EMAIL:-support@plane.so}
+    restart: unless-stopped
+    depends_on:
+      - api
+      - web
+
+  live:
+    build:
+      context: .
+      dockerfile: ./apps/live/Dockerfile.live
+      args:
+        DOCKER_BUILDKIT: 1
+    restart: unless-stopped
+    environment:
+      LIVE_SERVER_SECRET_KEY: ${LIVE_SERVER_SECRET_KEY:?Set LIVE_SERVER_SECRET_KEY}
+
+  api: &api
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.api
+      args:
+        DOCKER_BUILDKIT: 1
+    restart: unless-stopped
+    command: ./bin/docker-entrypoint-api.sh
+    environment: &api_environment
+      DEBUG: "0"
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY}
+      ALLOWED_HOSTS: "${ALLOWED_HOSTS:-*}"
+      CORS_ALLOWED_ORIGINS: "${PLANE_PUBLIC_URL:?Set PLANE_PUBLIC_URL}"
+      POSTGRES_USER: ${POSTGRES_USER:-plane}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_HOST: plane-db
+      POSTGRES_DB: ${POSTGRES_DB:-plane}
+      POSTGRES_PORT: "5432"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-plane}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@plane-db:5432/${POSTGRES_DB:-plane}"
+      REDIS_HOST: plane-redis
+      REDIS_PORT: "6379"
+      REDIS_URL: redis://plane-redis:6379/
+      RABBITMQ_HOST: plane-mq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: ${RABBITMQ_USER:-plane}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-plane}
+      AMQP_URL: "amqp://${RABBITMQ_USER:-plane}:${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD}@plane-mq:5672/${RABBITMQ_VHOST:-plane}"
+      AWS_REGION: ${AWS_REGION:-}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:?Set AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:?Set AWS_SECRET_ACCESS_KEY}
+      AWS_S3_ENDPOINT_URL: http://plane-minio:9000
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
+      FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
+      SIGNED_URL_EXPIRATION: ${SIGNED_URL_EXPIRATION:-3600}
+      USE_MINIO: "1"
+      DOCKERIZED: "1"
+      WEB_URL: "${PLANE_PUBLIC_URL:?Set PLANE_PUBLIC_URL}"
+      ADMIN_BASE_URL: "${PLANE_PUBLIC_URL:?Set PLANE_PUBLIC_URL}"
+      ADMIN_BASE_PATH: /god-mode
+      SPACE_BASE_URL: "${PLANE_PUBLIC_URL:?Set PLANE_PUBLIC_URL}"
+      SPACE_BASE_PATH: /spaces
+      APP_BASE_URL: "${PLANE_PUBLIC_URL:?Set PLANE_PUBLIC_URL}"
+      APP_BASE_PATH: ""
+      LIVE_BASE_URL: "${PLANE_PUBLIC_URL:?Set PLANE_PUBLIC_URL}"
+      LIVE_BASE_PATH: /live
+      LIVE_SERVER_SECRET_KEY: ${LIVE_SERVER_SECRET_KEY:?Set LIVE_SERVER_SECRET_KEY}
+      GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
+      HARD_DELETE_AFTER_DAYS: ${HARD_DELETE_AFTER_DAYS:-60}
+      API_KEY_RATE_LIMIT: ${API_KEY_RATE_LIMIT:-60/minute}
+      ENABLE_SIGNUP: ${ENABLE_SIGNUP:-1}
+      ENABLE_EMAIL_PASSWORD: ${ENABLE_EMAIL_PASSWORD:-1}
+      ENABLE_MAGIC_LINK_LOGIN: ${ENABLE_MAGIC_LINK_LOGIN:-0}
+      ENABLE_SMTP: ${ENABLE_SMTP:-0}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-1}
+      EMAIL_USE_SSL: ${EMAIL_USE_SSL:-0}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GITHUB_ORGANIZATION_ID: ${GITHUB_ORGANIZATION_ID:-}
+      GITLAB_HOST: ${GITLAB_HOST:-}
+      GITLAB_CLIENT_ID: ${GITLAB_CLIENT_ID:-}
+      GITLAB_CLIENT_SECRET: ${GITLAB_CLIENT_SECRET:-}
+      IS_GITEA_ENABLED: ${IS_GITEA_ENABLED:-0}
+      GITEA_HOST: ${GITEA_HOST:-}
+      GITEA_CLIENT_ID: ${GITEA_CLIENT_ID:-}
+      GITEA_CLIENT_SECRET: ${GITEA_CLIENT_SECRET:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
+      GPT_ENGINE: ${GPT_ENGINE:-gpt-3.5-turbo}
+      UNSPLASH_ACCESS_KEY: ${UNSPLASH_ACCESS_KEY:-}
+    depends_on:
+      - plane-db
+      - plane-redis
+      - plane-mq
+      - plane-minio
+
+  worker:
+    <<: *api
+    command: ./bin/docker-entrypoint-worker.sh
+    depends_on:
+      - api
+      - plane-db
+      - plane-redis
+      - plane-mq
+
+  beat-worker:
+    <<: *api
+    command: ./bin/docker-entrypoint-beat.sh
+    depends_on:
+      - api
+      - plane-db
+      - plane-redis
+      - plane-mq
+
+  migrator:
+    <<: *api
+    restart: "no"
+    command: ./bin/docker-entrypoint-migrator.sh
+    depends_on:
+      - plane-db
+      - plane-redis
+
+  plane-db:
+    image: postgres:15.7-alpine
+    restart: unless-stopped
+    command: postgres -c 'max_connections=1000'
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-plane}
+      POSTGRES_DB: ${POSTGRES_DB:-plane}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  plane-redis:
+    image: valkey/valkey:7.2.11-alpine
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+
+  plane-mq:
+    image: rabbitmq:3.13.6-management-alpine
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-plane}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-plane}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  plane-minio:
+    image: minio/minio
+    restart: unless-stopped
+    command: server /export --console-address ":9090"
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:?Set AWS_ACCESS_KEY_ID}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:?Set AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - uploads:/export
+
+  proxy:
+    build:
+      context: ./apps/proxy
+      dockerfile: Dockerfile.ce
+    restart: unless-stopped
+    environment:
+      FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
+      BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
+      SITE_ADDRESS: :80
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-0.0.0.0/0}
+      CERT_EMAIL: ""
+      CERT_ACME_CA: https://acme-v02.api.letsencrypt.org/directory
+      CERT_ACME_DNS: ""
+    expose:
+      - "80"
+    depends_on:
+      - web
+      - admin
+      - space
+      - live
+      - api
+      - plane-minio
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:
+  rabbitmq_data:
