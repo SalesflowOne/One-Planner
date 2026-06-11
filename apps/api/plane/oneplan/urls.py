@@ -11,6 +11,12 @@ from plane.oneplan.views.chat import (
     AIConversationListEndpoint,
     OnePlanConfigEndpoint,
 )
+from plane.oneplan.views.connectors import (
+    ConnectorsAppsEndpoint,
+    ConnectorsRunEndpoint,
+    ConnectorsStatusEndpoint,
+    ConnectorsToolsEndpoint,
+)
 from plane.oneplan.views.flow import (
     CommandCenterEndpoint,
     ConstraintDashboardEndpoint,
@@ -38,6 +44,10 @@ urlpatterns = [
     path("workspaces/<str:slug>/constraints/<uuid:constraint_id>/", ConstraintDetailEndpoint.as_view(), name="oneplan-constraint-detail"),
     path("workspaces/<str:slug>/constraints/<uuid:constraint_id>/issues/", ConstraintLinkEndpoint.as_view(), name="oneplan-constraint-link"),
     path("workspaces/<str:slug>/command/", CommandCenterEndpoint.as_view(), name="oneplan-command"),
+    path("connectors/status/", ConnectorsStatusEndpoint.as_view(), name="oneplan-connectors-status"),
+    path("workspaces/<str:slug>/connectors/apps/", ConnectorsAppsEndpoint.as_view(), name="oneplan-connectors-apps"),
+    path("workspaces/<str:slug>/connectors/tools/", ConnectorsToolsEndpoint.as_view(), name="oneplan-connectors-tools"),
+    path("workspaces/<str:slug>/connectors/run/", ConnectorsRunEndpoint.as_view(), name="oneplan-connectors-run"),
 ]
 
 auth_urlpatterns = [

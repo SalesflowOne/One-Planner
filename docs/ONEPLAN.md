@@ -14,6 +14,16 @@ Set in `apps/api/.env` or God Mode instance configuration:
 | `ENABLE_SUPABASE_AUTH` | `0` | Supabase JWT → Django session |
 | `ENABLE_CEO_COMMAND_MODE` | `1` | Command Center dashboard |
 | `AI_ACTION_REQUIRE_APPROVAL` | `1` | Require approval for write actions |
+| `ENABLE_PIPEDREAM_CONNECTORS` | `1` | Pipedream MCP connectors in Alfred |
+
+### Pipedream MCP
+
+```
+PIPEDREAM_CLIENT_ID=
+PIPEDREAM_CLIENT_SECRET=
+PIPEDREAM_PROJECT_ID=proj_xxxx
+PIPEDREAM_ENVIRONMENT=production
+```
 
 ## API Endpoints
 
@@ -57,7 +67,8 @@ docker compose run migrator
 
 - `/:workspaceSlug/oneplan/command` — Command Center
 - `/:workspaceSlug/oneplan/focus` — Constraints dashboard
-- `/:workspaceSlug/oneplan/assistant` — Alfred AI operator
+- `/:workspaceSlug/oneplan/assistant` — Alfred AI operator (sidebar + floating button)
+- `/:workspaceSlug/oneplan/connectors` — Pipedream MCP connectors
 
 ## Coolify / Docker
 

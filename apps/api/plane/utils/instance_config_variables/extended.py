@@ -40,4 +40,10 @@ extended_config_variables = [
         "category": "ONEPLAN",
         "is_encrypted": False,
     },
+    {
+        "key": "ENABLE_PIPEDREAM_CONNECTORS",
+        "value": os.environ.get("ENABLE_PIPEDREAM_CONNECTORS", "1"),
+        "category": "ONEPLAN",
+        "is_encrypted": False,
+    },
 ]

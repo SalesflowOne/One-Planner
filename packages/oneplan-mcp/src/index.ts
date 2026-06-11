@@ -7,6 +7,7 @@
  *   ONEPLAN_API_URL - e.g. http://localhost:8000
  *   ONEPLAN_API_KEY - X-Api-Key token (plane_api_*)
  *   ONEPLAN_WORKSPACE_SLUG - default workspace slug
+ *   PIPEDREAM_CLIENT_ID / PIPEDREAM_CLIENT_SECRET / PIPEDREAM_PROJECT_ID - optional Pipedream MCP
  */
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -19,6 +20,49 @@ import {
 const API_URL = process.env.ONEPLAN_API_URL || "http://localhost:8000";
 const API_KEY = process.env.ONEPLAN_API_KEY || "";
 const WORKSPACE_SLUG = process.env.ONEPLAN_WORKSPACE_SLUG || "";
+const PIPEDREAM_MCP_URL = process.env.PIPEDREAM_MCP_URL || "https://remote.mcp.pipedream.net/v3";
+const PIPEDREAM_CLIENT_ID = process.env.PIPEDREAM_CLIENT_ID || "";
+const PIPEDREAM_CLIENT_SECRET = process.env.PIPEDREAM_CLIENT_SECRET || "";
+const PIPEDREAM_PROJECT_ID = process.env.PIPEDREAM_PROJECT_ID || "";
+const PIPEDREAM_ENVIRONMENT = process.env.PIPEDREAM_ENVIRONMENT || "production";
+const EXTERNAL_USER_ID = process.env.PIPEDREAM_EXTERNAL_USER_ID || "oneplan-mcp";
+
+async function getPipedreamToken(): Promise<string | null> {
+  if (!PIPEDREAM_CLIENT_ID || !PIPEDREAM_CLIENT_SECRET) return null;
+  const res = await fetch("https://api.pipedream.com/v1/oauth/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      grant_type: "client_credentials",
+      client_id: PIPEDREAM_CLIENT_ID,
+      client_secret: PIPEDREAM_CLIENT_SECRET,
+    }),
+  });
+  if (!res.ok) return null;
+  const data = (await res.json()) as { access_token?: string };
+  return data.access_token ?? null;
+}
+
+async function pipedreamMcpCall(appSlug: string, method: string, params: Record<string, unknown> = {}) {
+  const token = await getPipedreamToken();
+  if (!token || !PIPEDREAM_PROJECT_ID) throw new Error("Pipedream MCP not configured");
+  const res = await fetch(PIPEDREAM_MCP_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      "x-pd-project-id": PIPEDREAM_PROJECT_ID,
+      "x-pd-environment": PIPEDREAM_ENVIRONMENT,
+      "x-pd-external-user-id": EXTERNAL_USER_ID,
+      "x-pd-app-slug": appSlug,
+    },
+    body: JSON.stringify({ jsonrpc: "2.0", id: "1", method, params }),
+  });
+  if (!res.ok) throw new Error(`Pipedream MCP ${res.status}`);
+  const data = (await res.json()) as { result?: unknown; error?: unknown };
+  if (data.error) throw new Error(JSON.stringify(data.error));
+  return data.result;
+}
 
 async function apiRequest(path: string, method = "GET", body?: unknown) {
   const init: RequestInit = {
@@ -46,6 +90,8 @@ const TOOLS = [
   { name: "search_tasks", description: "Search work items", inputSchema: { type: "object", properties: { workspace_slug: { type: "string" }, query: { type: "string" } } } },
   { name: "create_task", description: "Create work item (dry-run by default)", inputSchema: { type: "object", properties: { workspace_slug: { type: "string" }, tool: { type: "string" }, arguments: { type: "object" }, dry_run: { type: "boolean" } } } },
   { name: "execute_tool", description: "Execute any OnePlan tool", inputSchema: { type: "object", properties: { workspace_slug: { type: "string" }, tool: { type: "string" }, arguments: { type: "object" }, dry_run: { type: "boolean" } }, required: ["tool"] } },
+  { name: "list_pipedream_tools", description: "List Pipedream MCP tools for an app", inputSchema: { type: "object", properties: { app_slug: { type: "string" } }, required: ["app_slug"] } },
+  { name: "run_pipedream_tool", description: "Run a Pipedream MCP connector tool", inputSchema: { type: "object", properties: { app_slug: { type: "string" }, tool_name: { type: "string" }, arguments: { type: "object" } }, required: ["app_slug", "tool_name"] } },
 ];
 
 const server = new Server({ name: "oneplan", version: "0.1.0" }, { capabilities: { tools: {} } });
@@ -79,6 +125,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         break;
       case "list_workspaces":
         result = await apiRequest("/api/v1/users/me/workspaces/");
+        break;
+      case "list_pipedream_tools":
+        result = await pipedreamMcpCall(args?.app_slug as string, "tools/list");
+        break;
+      case "run_pipedream_tool":
+        result = await pipedreamMcpCall(args?.app_slug as string, "tools/call", {
+          name: args?.tool_name,
+          arguments: args?.arguments || {},
+        });
         break;
       default:
         return { content: [{ type: "text", text: `Unknown tool: ${name}` }], isError: true };

@@ -16,11 +16,11 @@ def is_oneplan_enabled() -> bool:
 
 
 def is_ai_operator_enabled() -> bool:
-    return is_oneplan_enabled() and _flag("ENABLE_AI_OPERATOR")
+    return is_oneplan_enabled() and _flag("ENABLE_AI_OPERATOR", "1")
 
 
 def is_flow_constraints_enabled() -> bool:
-    return is_oneplan_enabled() and _flag("ENABLE_FLOW_CONSTRAINTS")
+    return is_oneplan_enabled() and _flag("ENABLE_FLOW_CONSTRAINTS", "1")
 
 
 def is_supabase_auth_enabled() -> bool:
@@ -28,7 +28,11 @@ def is_supabase_auth_enabled() -> bool:
 
 
 def is_ceo_command_enabled() -> bool:
-    return is_oneplan_enabled() and _flag("ENABLE_CEO_COMMAND_MODE")
+    return is_oneplan_enabled() and _flag("ENABLE_CEO_COMMAND_MODE", "1")
+
+
+def is_pipedream_connectors_enabled() -> bool:
+    return is_ai_operator_enabled() and _flag("ENABLE_PIPEDREAM_CONNECTORS", "1")
 
 
 def get_oneplan_config() -> dict:
@@ -38,5 +42,6 @@ def get_oneplan_config() -> dict:
         "enable_flow_constraints": is_flow_constraints_enabled(),
         "enable_supabase_auth": is_supabase_auth_enabled(),
         "enable_ceo_command_mode": is_ceo_command_enabled(),
+        "enable_pipedream_connectors": is_pipedream_connectors_enabled(),
         "ai_action_require_approval": _flag("AI_ACTION_REQUIRE_APPROVAL", "1"),
     }

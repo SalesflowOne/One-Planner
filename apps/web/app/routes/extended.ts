@@ -16,6 +16,7 @@ export const extendedRoutes: RouteConfigEntry[] = [
         route(":workspaceSlug/oneplan/command", "./(all)/[workspaceSlug]/(projects)/oneplan/command/page.tsx"),
         route(":workspaceSlug/oneplan/focus", "./(all)/[workspaceSlug]/(projects)/oneplan/focus/page.tsx"),
         route(":workspaceSlug/oneplan/assistant", "./(all)/[workspaceSlug]/(projects)/oneplan/assistant/page.tsx"),
+        route(":workspaceSlug/oneplan/connectors", "./(all)/[workspaceSlug]/(projects)/oneplan/connectors/page.tsx"),
       ]),
     ]),
   ]),

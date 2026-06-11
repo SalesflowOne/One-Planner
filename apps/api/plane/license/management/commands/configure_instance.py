@@ -38,7 +38,21 @@ class Command(BaseCommand):
                 obj.save()
                 self.stdout.write(self.style.SUCCESS(f"{obj.key} loaded with value from environment variable."))
             else:
-                self.stdout.write(self.style.WARNING(f"{obj.key} configuration already exists"))
+                if item.get("category") == "ONEPLAN":
+                    env_value = item.get("value")
+                    if env_value is not None and str(obj.value) != str(env_value):
+                        if item.get("is_encrypted", False):
+                            obj.value = encrypt_data(env_value)
+                        else:
+                            obj.value = env_value
+                        obj.save()
+                        self.stdout.write(
+                            self.style.SUCCESS(f"{obj.key} updated from environment variable.")
+                        )
+                    else:
+                        self.stdout.write(self.style.WARNING(f"{obj.key} configuration already exists"))
+                else:
+                    self.stdout.write(self.style.WARNING(f"{obj.key} configuration already exists"))
 
         keys = ["IS_GOOGLE_ENABLED", "IS_GITHUB_ENABLED", "IS_GITLAB_ENABLED", "IS_GITEA_ENABLED"]
         if not InstanceConfiguration.objects.filter(key__in=keys).exists():

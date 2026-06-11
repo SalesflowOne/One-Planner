@@ -2,13 +2,15 @@
  * OnePlan AI Operator — Ask / Plan / Act modes
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react";
 import { Button } from "@plane/propel/button";
 import { API_BASE_URL } from "@plane/constants";
 import type { TOnePlanMode } from "@plane/services";
 import { OnePlanService } from "@plane/services";
+import { useTranslation } from "@plane/i18n";
 import { useParams } from "react-router";
+import { useOnePlanFlags } from "@/plane-web/hooks/use-oneplan-flags";
 
 const service = new OnePlanService(API_BASE_URL);
 
@@ -19,14 +21,36 @@ type TPreview = {
 };
 
 export const OperatorPanel = observer(function OperatorPanel() {
+  const { t } = useTranslation();
   const { workspaceSlug } = useParams();
   const slug = workspaceSlug ?? "";
+  const { aiOperator, llmConfigured } = useOnePlanFlags();
   const [mode, setMode] = useState<TOnePlanMode>("ask");
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
   const [previews, setPreviews] = useState<TPreview[]>([]);
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>();
+
+  useEffect(() => {
+    service.getConfig().catch(() => undefined);
+  }, []);
+
+  if (!aiOperator) {
+    return (
+      <div className="flex h-full items-center justify-center p-8 text-13 text-secondary">
+        {t("oneplan.ai_disabled")}
+      </div>
+    );
+  }
+
+  if (!llmConfigured) {
+    return (
+      <div className="flex h-full items-center justify-center p-8 text-13 text-secondary">
+        {t("oneplan.llm_not_configured")}
+      </div>
+    );
+  }
 
   const send = async () => {
     if (!slug || !message.trim()) return;

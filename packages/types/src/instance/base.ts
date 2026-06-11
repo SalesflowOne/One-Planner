@@ -72,6 +72,7 @@ export interface IInstanceConfig {
   enable_flow_constraints?: boolean;
   enable_supabase_auth?: boolean;
   enable_ceo_command_mode?: boolean;
+  enable_pipedream_connectors?: boolean;
   ai_action_require_approval?: boolean;
 }
 

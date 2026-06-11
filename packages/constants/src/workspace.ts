@@ -241,12 +241,20 @@ export const WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS: Record<string, IWorkspa
     access: [EUserWorkspaceRoles.ADMIN, EUserWorkspaceRoles.MEMBER],
     highlight: (pathname: string, url: string) => pathname.includes(url),
   },
+  oneplan_connectors: {
+    key: "oneplan_connectors",
+    labelTranslationKey: "oneplan.connectors",
+    href: `/oneplan/connectors/`,
+    access: [EUserWorkspaceRoles.ADMIN, EUserWorkspaceRoles.MEMBER],
+    highlight: (pathname: string, url: string) => pathname.includes(url),
+  },
 };
 
 export const WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS_LINKS: IWorkspaceSidebarNavigationItem[] = [
+  WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["oneplan_assistant"],
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["oneplan_command"],
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["oneplan_focus"],
-  WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["oneplan_assistant"],
+  WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["oneplan_connectors"],
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["views"],
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["analytics"],
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["archives"],

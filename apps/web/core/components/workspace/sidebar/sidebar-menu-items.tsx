@@ -29,6 +29,7 @@ import {
 } from "@/hooks/use-navigation-preferences";
 // plane-web imports
 import { SidebarItem } from "@/plane-web/components/workspace/sidebar/sidebar-item";
+import { useOnePlanFlags } from "@/plane-web/hooks/use-oneplan-flags";
 
 export const SidebarMenuItems = observer(function SidebarMenuItems() {
   // routers
@@ -44,6 +45,7 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
   const { preferences: workspacePreferences } = useWorkspaceNavigationPreferences();
   // translation
   const { t } = useTranslation();
+  const { enabled, aiOperator, flowConstraints, ceoCommand, connectors } = useOnePlanFlags();
 
   const toggleListDisclosure = (isOpen: boolean) => {
     toggleWorkspaceMenu(isOpen);
@@ -82,17 +84,24 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
     return [...items, ...personalItems];
   }, [personalPreferences]);
 
-  const sortedNavigationItems = useMemo(
-    () =>
-      WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS_LINKS.map((item) => {
+  const sortedNavigationItems = useMemo(() => {
+    const isOnePlanItemVisible = (key: string) => {
+      if (!enabled) return false;
+      if (key === "oneplan_assistant") return aiOperator;
+      if (key === "oneplan_command") return ceoCommand;
+      if (key === "oneplan_focus") return flowConstraints;
+      if (key === "oneplan_connectors") return connectors;
+      return true;
+    };
+
+    return WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS_LINKS.filter((item) => isOnePlanItemVisible(item.key))
+      .map((item) => {
         const preference = workspacePreferences.items[item.key];
-        return {
-          ...item,
-          sort_order: preference ? preference.sort_order : 0,
-        };
-      }).sort((a, b) => a.sort_order - b.sort_order),
-    [workspacePreferences]
-  );
+        const next = { ...item, sort_order: preference ? preference.sort_order : 0 };
+        return next;
+      })
+      .sort((a, b) => a.sort_order - b.sort_order);
+  }, [workspacePreferences, enabled, aiOperator, flowConstraints, ceoCommand, connectors]);
 
   return (
     <>

@@ -54,6 +54,10 @@ export const SidebarItemBase = observer(function SidebarItemBase({
     "your_work",
     "stickies",
     "drafts",
+    "oneplan_assistant",
+    "oneplan_command",
+    "oneplan_focus",
+    "oneplan_connectors",
     ...(additionalStaticItems || []),
   ];
   const slug = workspaceSlug?.toString() || "";

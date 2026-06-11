@@ -8,6 +8,7 @@ import { observer } from "mobx-react";
 import { Outlet } from "react-router";
 import { ProjectsAppPowerKProvider } from "@/components/power-k/projects-app-provider";
 // plane web components
+import { AlfredFloatingChat } from "@/plane-web/components/oneplan/assistant/floating-chat";
 import { ProjectAppSidebar } from "./_sidebar";
 import { ExtendedProjectSidebar } from "./extended-project-sidebar";
 
@@ -22,6 +23,7 @@ function WorkspaceLayout() {
           <ExtendedProjectSidebar />
           <main className="relative flex h-full w-full flex-col overflow-hidden bg-surface-1">
             <Outlet />
+            <AlfredFloatingChat />
           </main>
         </div>
       </div>

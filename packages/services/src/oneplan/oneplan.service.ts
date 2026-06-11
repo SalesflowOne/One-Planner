@@ -69,4 +69,19 @@ export class OnePlanService extends APIService {
   async getActionLogs(workspaceSlug: string) {
     return this.get(`/api/oneplan/workspaces/${workspaceSlug}/actions/logs/`).then((r) => r?.data);
   }
+
+  async getConnectorsStatus() {
+    return this.get("/api/oneplan/connectors/status/").then((r) => r?.data);
+  }
+
+  async getConnectorApps(workspaceSlug: string) {
+    return this.get(`/api/oneplan/workspaces/${workspaceSlug}/connectors/apps/`).then((r) => r?.data);
+  }
+
+  async runConnector(
+    workspaceSlug: string,
+    data: { app_slug: string; tool_name: string; arguments?: Record<string, unknown> }
+  ) {
+    return this.post(`/api/oneplan/workspaces/${workspaceSlug}/connectors/run/`, data).then((r) => r?.data);
+  }
 }

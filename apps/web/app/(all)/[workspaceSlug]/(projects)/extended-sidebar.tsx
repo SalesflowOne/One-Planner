@@ -16,6 +16,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceNavigationPreferences } from "@/hooks/use-navigation-preferences";
 // plane-web imports
 import { ExtendedSidebarItem } from "@/plane-web/components/workspace/sidebar/extended-sidebar-item";
+import { useOnePlanFlags } from "@/plane-web/hooks/use-oneplan-flags";
 import { ExtendedSidebarWrapper } from "./extended-sidebar-wrapper";
 
 export const ExtendedAppSidebar = observer(function ExtendedAppSidebar() {
@@ -27,17 +28,25 @@ export const ExtendedAppSidebar = observer(function ExtendedAppSidebar() {
   const { isExtendedSidebarOpened, toggleExtendedSidebar } = useAppTheme();
   const { allowPermissions } = useUserPermissions();
   const { preferences: workspacePreferences, updateWorkspaceItemSortOrder } = useWorkspaceNavigationPreferences();
+  const { enabled, aiOperator, flowConstraints, ceoCommand, connectors } = useOnePlanFlags();
 
   // derived values
   const currentWorkspaceNavigationPreferences = workspacePreferences.items;
 
   const sortedNavigationItems = useMemo(() => {
     const slug = workspaceSlug.toString();
+    const isOnePlanItemVisible = (key: string) => {
+      if (!enabled) return false;
+      if (key === "oneplan_assistant") return aiOperator;
+      if (key === "oneplan_command") return ceoCommand;
+      if (key === "oneplan_focus") return flowConstraints;
+      if (key === "oneplan_connectors") return connectors;
+      return true;
+    };
 
     return WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS_LINKS.filter((item) => {
-      // Permission check
+      if (!isOnePlanItemVisible(item.key)) return false;
       const hasPermission = allowPermissions(item.access, EUserPermissionsLevel.WORKSPACE, slug);
-
       return hasPermission;
     })
       .map((item) => {
@@ -56,7 +65,7 @@ export const ExtendedAppSidebar = observer(function ExtendedAppSidebar() {
         // Then sort by sort_order within each group
         return a.sort_order - b.sort_order;
       });
-  }, [workspaceSlug, currentWorkspaceNavigationPreferences, allowPermissions]);
+  }, [workspaceSlug, currentWorkspaceNavigationPreferences, allowPermissions, enabled, aiOperator, flowConstraints, ceoCommand, connectors]);
 
   const sortedNavigationItemsKeys = sortedNavigationItems.map((item) => item.key);
 

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from plane.app.permissions import ROLE, allow_permission
@@ -15,6 +16,8 @@ from plane.utils.ip_address import get_client_ip
 
 
 class OnePlanConfigEndpoint(BaseAPIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         return Response(get_oneplan_config())
 

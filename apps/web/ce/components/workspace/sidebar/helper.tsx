@@ -4,6 +4,7 @@
  * See the LICENSE file for details.
  */
 
+import { MessageSquare, Plug } from "lucide-react";
 import {
   AnalyticsIcon,
   ArchiveIcon,
@@ -40,9 +41,12 @@ export const getSidebarNavigationItemIcon = (key: string, className: string = ""
       return <ArchiveIcon className={cn("size-4 flex-shrink-0", className)} />;
     case "stickies":
       return <MultipleStickyIcon className={cn("size-4 flex-shrink-0", className)} />;
+    case "oneplan_assistant":
+      return <MessageSquare className={cn("size-4 flex-shrink-0", className)} />;
+    case "oneplan_connectors":
+      return <Plug className={cn("size-4 flex-shrink-0", className)} />;
     case "oneplan_command":
     case "oneplan_focus":
-    case "oneplan_assistant":
       return <AnalyticsIcon className={cn("size-4 flex-shrink-0", className)} />;
   }
 };

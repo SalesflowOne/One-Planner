@@ -12,6 +12,13 @@ from plane.app.serializers import IssueCreateSerializer
 from plane.db.models import Issue, IssueAssignee, IssueComment, Project, ProjectMember, State, Workspace, WorkspaceMember
 from plane.oneplan.models import AIActionLog, Constraint, ConstraintIssueLink, Objective
 from plane.oneplan.services.context import get_workspace_context, workspace_summary_text
+from plane.oneplan.services.feature_flags import is_pipedream_connectors_enabled
+from plane.oneplan.services.pipedream_mcp import (
+    get_connect_instructions,
+    is_pipedream_configured,
+    list_connector_apps,
+    run_connector_tool,
+)
 from plane.utils.exception_logger import log_exception
 
 
@@ -35,6 +42,8 @@ RISK_LEVELS = {
     "link_task_to_constraint": "low",
     "mark_constraint_resolved": "medium",
     "generate_execution_plan": "low",
+    "list_connectors": "low",
+    "run_connector": "medium",
 }
 
 READ_TOOLS = {
@@ -48,6 +57,7 @@ READ_TOOLS = {
     "rank_constraints",
     "summarize_workspace",
     "get_daily_priorities",
+    "list_connectors",
 }
 
 
@@ -342,6 +352,34 @@ def _mark_constraint_resolved(user, workspace, dry_run, constraint_id, **_) -> d
     return {"resolved": True, "constraint_id": constraint_id}
 
 
+def _list_connectors(user, workspace, dry_run, **_) -> dict:
+    if not is_pipedream_connectors_enabled():
+        return {"error": "Pipedream connectors not enabled"}
+    if not is_pipedream_configured():
+        return {"error": "Pipedream MCP not configured", "apps": []}
+    return {"apps": list_connector_apps()}
+
+
+def _run_connector(user, workspace, dry_run, app_slug, tool_name, arguments=None, **_) -> dict:
+    if not is_pipedream_connectors_enabled():
+        return {"error": "Pipedream connectors not enabled"}
+    if not is_pipedream_configured():
+        return {"error": "Pipedream MCP not configured"}
+    if dry_run:
+        return {
+            "preview": True,
+            "action": "run_connector",
+            "app_slug": app_slug,
+            "tool_name": tool_name,
+            "arguments": arguments or {},
+        }
+    external_user_id = f"oneplan-{user.id}"
+    result = run_connector_tool(external_user_id, app_slug, tool_name, arguments or {})
+    if result.get("error"):
+        return {**result, **get_connect_instructions(app_slug)}
+    return result
+
+
 def _generate_execution_plan(user, workspace, dry_run, constraint_id, **_) -> dict:
     c = Constraint.objects.filter(workspace=workspace, id=constraint_id).first()
     if not c:
@@ -379,6 +417,8 @@ TOOL_DEFINITIONS = [
     {"type": "function", "function": {"name": "link_task_to_constraint", "description": "Link task to constraint", "parameters": {"type": "object", "properties": {"constraint_id": {"type": "string"}, "task_id": {"type": "string"}}, "required": ["constraint_id", "task_id"]}}},
     {"type": "function", "function": {"name": "mark_constraint_resolved", "description": "Mark constraint resolved", "parameters": {"type": "object", "properties": {"constraint_id": {"type": "string"}}, "required": ["constraint_id"]}}},
     {"type": "function", "function": {"name": "generate_execution_plan", "description": "Generate plan to resolve constraint", "parameters": {"type": "object", "properties": {"constraint_id": {"type": "string"}}, "required": ["constraint_id"]}}},
+    {"type": "function", "function": {"name": "list_connectors", "description": "List Pipedream MCP connector apps available", "parameters": {"type": "object", "properties": {}}}},
+    {"type": "function", "function": {"name": "run_connector", "description": "Run a Pipedream MCP connector tool (Slack, GitHub, etc.)", "parameters": {"type": "object", "properties": {"app_slug": {"type": "string"}, "tool_name": {"type": "string"}, "arguments": {"type": "object"}}, "required": ["app_slug", "tool_name"]}}},
 ]
 
 TOOL_HANDLERS = {
@@ -403,6 +443,8 @@ TOOL_HANDLERS = {
     "link_task_to_constraint": _link_task_to_constraint,
     "mark_constraint_resolved": _mark_constraint_resolved,
     "generate_execution_plan": _generate_execution_plan,
+    "list_connectors": _list_connectors,
+    "run_connector": _run_connector,
 }
 
 

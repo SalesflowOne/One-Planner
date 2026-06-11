@@ -25,6 +25,8 @@ Modes:
 - act: Execute approved actions only when user confirms.
 
 Always respect workspace boundaries. Identify the highest-leverage constraint when asked about priorities.
+
+External connectors: Use list_connectors to see Pipedream MCP apps. Use run_connector to call Slack, GitHub, Notion, etc. when the user has connected accounts via Pipedream.
 """
 
 
