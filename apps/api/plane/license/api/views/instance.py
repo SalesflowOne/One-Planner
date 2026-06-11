@@ -166,6 +166,11 @@ class InstanceEndpoint(BaseAPIView):
         data["instance_changelog_url"] = settings.INSTANCE_CHANGELOG_URL
         data["is_self_managed"] = settings.IS_SELF_MANAGED
 
+        # OnePlan feature flags
+        from plane.oneplan.services.feature_flags import get_oneplan_config
+
+        data.update(get_oneplan_config())
+
         instance_data = serializer.data
         instance_data["workspaces_exist"] = Workspace.objects.count() >= 1
 

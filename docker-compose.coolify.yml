@@ -1,0 +1,402 @@
+x-oneplan-build-args: &oneplan-build-args
+  VITE_APP_NAME: ${VITE_APP_NAME:-OnePlan}
+  VITE_WEBSITE_URL: ${VITE_WEBSITE_URL:-https://oneplan.one}
+  VITE_SUPPORT_EMAIL: ${VITE_SUPPORT_EMAIL:-support@oneplan.one}
+
+x-oneplan-api-env: &oneplan-api-env
+  ENABLE_ONEPLAN_FEATURES: ${ENABLE_ONEPLAN_FEATURES:-1}
+  ENABLE_AI_OPERATOR: ${ENABLE_AI_OPERATOR:-1}
+  ENABLE_FLOW_CONSTRAINTS: ${ENABLE_FLOW_CONSTRAINTS:-1}
+  ENABLE_CEO_COMMAND_MODE: ${ENABLE_CEO_COMMAND_MODE:-1}
+  ENABLE_SUPABASE_AUTH: ${ENABLE_SUPABASE_AUTH:-0}
+  AI_ACTION_REQUIRE_APPROVAL: ${AI_ACTION_REQUIRE_APPROVAL:-1}
+  LLM_API_KEY: ${LLM_API_KEY:-}
+  LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+  LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
+  SUPABASE_URL: ${SUPABASE_URL:-}
+  SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:-}
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile.web
+      args:
+        DOCKER_BUILDKIT: 1
+        <<: *oneplan-build-args
+        VITE_API_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_ADMIN_BASE_PATH: /god-mode
+        VITE_SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_SPACE_BASE_PATH: /spaces
+        VITE_LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_LIVE_BASE_PATH: /live
+    restart: always
+    depends_on:
+      - api
+
+  admin:
+    build:
+      context: .
+      dockerfile: ./apps/admin/Dockerfile.admin
+      args:
+        DOCKER_BUILDKIT: 1
+        <<: *oneplan-build-args
+        VITE_API_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_ADMIN_BASE_PATH: /god-mode
+        VITE_SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_SPACE_BASE_PATH: /spaces
+        VITE_LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_LIVE_BASE_PATH: /live
+    restart: always
+    depends_on:
+      - api
+      - web
+
+  space:
+    build:
+      context: .
+      dockerfile: ./apps/space/Dockerfile.space
+      args:
+        DOCKER_BUILDKIT: 1
+        <<: *oneplan-build-args
+        VITE_API_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_ADMIN_BASE_PATH: /god-mode
+        VITE_SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_SPACE_BASE_PATH: /spaces
+        VITE_LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+        VITE_LIVE_BASE_PATH: /live
+    restart: always
+    depends_on:
+      - api
+      - web
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.api
+      args:
+        DOCKER_BUILDKIT: 1
+    restart: always
+    command: ./bin/docker-entrypoint-api.sh
+    environment:
+      DEBUG: ${DEBUG:-0}
+      SECRET_KEY: ${SERVICE_BASE64_DJANGOSECRET}
+      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_PATH: /god-mode
+      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      SPACE_BASE_PATH: /spaces
+      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      LIVE_BASE_PATH: /live
+      GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
+      PORT: 8000
+      POSTGRES_USER: ${POSTGRES_USER:-plane}
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+      POSTGRES_HOST: plane-db
+      POSTGRES_DB: ${POSTGRES_DB:-plane}
+      POSTGRES_PORT: 5432
+      DATABASE_URL: postgresql://${POSTGRES_USER:-plane}:${SERVICE_PASSWORD_POSTGRES}@plane-db:5432/${POSTGRES_DB:-plane}
+      REDIS_HOST: plane-redis
+      REDIS_PORT: 6379
+      REDIS_URL: redis://plane-redis:6379/
+      RABBITMQ_HOST: plane-mq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-plane}
+      RABBITMQ_PASSWORD: ${SERVICE_PASSWORD_RABBITMQ}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-plane}
+      AMQP_URL: amqp://${RABBITMQ_USER:-plane}:${SERVICE_PASSWORD_RABBITMQ}@plane-mq:5672/${RABBITMQ_VHOST:-plane}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${SERVICE_USER_MINIO}
+      AWS_SECRET_ACCESS_KEY: ${SERVICE_PASSWORD_MINIO}
+      AWS_S3_ENDPOINT_URL: http://plane-minio:9000
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
+      FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
+      USE_MINIO: 1
+      MINIO_ENDPOINT_SSL: 0
+      API_KEY_RATE_LIMIT: ${API_KEY_RATE_LIMIT:-60/minute}
+      LIVE_SERVER_SECRET_KEY: ${SERVICE_BASE64_LIVESECRET}
+      WEBHOOK_ALLOWED_IPS: ${WEBHOOK_ALLOWED_IPS:-}
+      WEBHOOK_ALLOWED_HOSTS: ${WEBHOOK_ALLOWED_HOSTS:-}
+      <<: *oneplan-api-env
+    volumes:
+      - logs_api:/code/plane/logs
+    depends_on:
+      - plane-db
+      - plane-redis
+      - plane-mq
+      - plane-minio
+
+  worker:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.api
+      args:
+        DOCKER_BUILDKIT: 1
+    restart: always
+    command: ./bin/docker-entrypoint-worker.sh
+    environment:
+      DEBUG: ${DEBUG:-0}
+      SECRET_KEY: ${SERVICE_BASE64_DJANGOSECRET}
+      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_PATH: /god-mode
+      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      SPACE_BASE_PATH: /spaces
+      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      LIVE_BASE_PATH: /live
+      GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
+      POSTGRES_USER: ${POSTGRES_USER:-plane}
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+      POSTGRES_HOST: plane-db
+      POSTGRES_DB: ${POSTGRES_DB:-plane}
+      POSTGRES_PORT: 5432
+      DATABASE_URL: postgresql://${POSTGRES_USER:-plane}:${SERVICE_PASSWORD_POSTGRES}@plane-db:5432/${POSTGRES_DB:-plane}
+      REDIS_HOST: plane-redis
+      REDIS_PORT: 6379
+      REDIS_URL: redis://plane-redis:6379/
+      RABBITMQ_HOST: plane-mq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-plane}
+      RABBITMQ_PASSWORD: ${SERVICE_PASSWORD_RABBITMQ}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-plane}
+      AMQP_URL: amqp://${RABBITMQ_USER:-plane}:${SERVICE_PASSWORD_RABBITMQ}@plane-mq:5672/${RABBITMQ_VHOST:-plane}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${SERVICE_USER_MINIO}
+      AWS_SECRET_ACCESS_KEY: ${SERVICE_PASSWORD_MINIO}
+      AWS_S3_ENDPOINT_URL: http://plane-minio:9000
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
+      FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
+      USE_MINIO: 1
+      MINIO_ENDPOINT_SSL: 0
+      API_KEY_RATE_LIMIT: ${API_KEY_RATE_LIMIT:-60/minute}
+      LIVE_SERVER_SECRET_KEY: ${SERVICE_BASE64_LIVESECRET}
+      WEBHOOK_ALLOWED_IPS: ${WEBHOOK_ALLOWED_IPS:-}
+      WEBHOOK_ALLOWED_HOSTS: ${WEBHOOK_ALLOWED_HOSTS:-}
+      <<: *oneplan-api-env
+    volumes:
+      - logs_worker:/code/plane/logs
+    depends_on:
+      - api
+      - plane-db
+      - plane-redis
+      - plane-mq
+      - plane-minio
+
+  beat-worker:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.api
+      args:
+        DOCKER_BUILDKIT: 1
+    restart: always
+    command: ./bin/docker-entrypoint-beat.sh
+    environment:
+      DEBUG: ${DEBUG:-0}
+      SECRET_KEY: ${SERVICE_BASE64_DJANGOSECRET}
+      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_PATH: /god-mode
+      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      SPACE_BASE_PATH: /spaces
+      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      LIVE_BASE_PATH: /live
+      GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
+      POSTGRES_USER: ${POSTGRES_USER:-plane}
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+      POSTGRES_HOST: plane-db
+      POSTGRES_DB: ${POSTGRES_DB:-plane}
+      POSTGRES_PORT: 5432
+      DATABASE_URL: postgresql://${POSTGRES_USER:-plane}:${SERVICE_PASSWORD_POSTGRES}@plane-db:5432/${POSTGRES_DB:-plane}
+      REDIS_HOST: plane-redis
+      REDIS_PORT: 6379
+      REDIS_URL: redis://plane-redis:6379/
+      RABBITMQ_HOST: plane-mq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-plane}
+      RABBITMQ_PASSWORD: ${SERVICE_PASSWORD_RABBITMQ}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-plane}
+      AMQP_URL: amqp://${RABBITMQ_USER:-plane}:${SERVICE_PASSWORD_RABBITMQ}@plane-mq:5672/${RABBITMQ_VHOST:-plane}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${SERVICE_USER_MINIO}
+      AWS_SECRET_ACCESS_KEY: ${SERVICE_PASSWORD_MINIO}
+      AWS_S3_ENDPOINT_URL: http://plane-minio:9000
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
+      FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
+      USE_MINIO: 1
+      MINIO_ENDPOINT_SSL: 0
+      API_KEY_RATE_LIMIT: ${API_KEY_RATE_LIMIT:-60/minute}
+      LIVE_SERVER_SECRET_KEY: ${SERVICE_BASE64_LIVESECRET}
+      WEBHOOK_ALLOWED_IPS: ${WEBHOOK_ALLOWED_IPS:-}
+      WEBHOOK_ALLOWED_HOSTS: ${WEBHOOK_ALLOWED_HOSTS:-}
+      <<: *oneplan-api-env
+    volumes:
+      - logs_beat_worker:/code/plane/logs
+    depends_on:
+      - api
+      - plane-db
+      - plane-redis
+      - plane-mq
+      - plane-minio
+
+  migrator:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.api
+      args:
+        DOCKER_BUILDKIT: 1
+    restart: "no"
+    exclude_from_hc: true
+    command: ./bin/docker-entrypoint-migrator.sh
+    environment:
+      DEBUG: ${DEBUG:-0}
+      SECRET_KEY: ${SERVICE_BASE64_DJANGOSECRET}
+      CORS_ALLOWED_ORIGINS: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      WEB_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      APP_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      ADMIN_BASE_PATH: /god-mode
+      SPACE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      SPACE_BASE_PATH: /spaces
+      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      LIVE_BASE_PATH: /live
+      GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
+      POSTGRES_USER: ${POSTGRES_USER:-plane}
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+      POSTGRES_HOST: plane-db
+      POSTGRES_DB: ${POSTGRES_DB:-plane}
+      POSTGRES_PORT: 5432
+      DATABASE_URL: postgresql://${POSTGRES_USER:-plane}:${SERVICE_PASSWORD_POSTGRES}@plane-db:5432/${POSTGRES_DB:-plane}
+      REDIS_HOST: plane-redis
+      REDIS_PORT: 6379
+      REDIS_URL: redis://plane-redis:6379/
+      RABBITMQ_HOST: plane-mq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-plane}
+      RABBITMQ_PASSWORD: ${SERVICE_PASSWORD_RABBITMQ}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-plane}
+      AMQP_URL: amqp://${RABBITMQ_USER:-plane}:${SERVICE_PASSWORD_RABBITMQ}@plane-mq:5672/${RABBITMQ_VHOST:-plane}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${SERVICE_USER_MINIO}
+      AWS_SECRET_ACCESS_KEY: ${SERVICE_PASSWORD_MINIO}
+      AWS_S3_ENDPOINT_URL: http://plane-minio:9000
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
+      FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
+      USE_MINIO: 1
+      MINIO_ENDPOINT_SSL: 0
+      API_KEY_RATE_LIMIT: ${API_KEY_RATE_LIMIT:-60/minute}
+      LIVE_SERVER_SECRET_KEY: ${SERVICE_BASE64_LIVESECRET}
+      WEBHOOK_ALLOWED_IPS: ${WEBHOOK_ALLOWED_IPS:-}
+      WEBHOOK_ALLOWED_HOSTS: ${WEBHOOK_ALLOWED_HOSTS:-}
+      <<: *oneplan-api-env
+    volumes:
+      - logs_migrator:/code/plane/logs
+    depends_on:
+      - plane-db
+      - plane-redis
+      - plane-mq
+      - plane-minio
+
+  live:
+    build:
+      context: .
+      dockerfile: ./apps/live/Dockerfile.live
+      args:
+        DOCKER_BUILDKIT: 1
+    restart: always
+    environment:
+      PORT: 3000
+      API_BASE_URL: http://api:8000
+      WEB_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      LIVE_BASE_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      LIVE_BASE_PATH: /live
+      LIVE_SERVER_SECRET_KEY: ${SERVICE_BASE64_LIVESECRET}
+      REDIS_HOST: plane-redis
+      REDIS_PORT: 6379
+      REDIS_URL: redis://plane-redis:6379/
+    depends_on:
+      - api
+      - plane-redis
+
+  plane-db:
+    image: postgres:15.7-alpine
+    restart: always
+    command: postgres -c 'max_connections=1000'
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-plane}
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+      POSTGRES_DB: ${POSTGRES_DB:-plane}
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  plane-redis:
+    image: valkey/valkey:7.2.11-alpine
+    restart: always
+    volumes:
+      - redisdata:/data
+
+  plane-mq:
+    image: rabbitmq:3.13.6-management-alpine
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-plane}
+      RABBITMQ_DEFAULT_PASS: ${SERVICE_PASSWORD_RABBITMQ}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-plane}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  plane-minio:
+    image: minio/minio:latest
+    restart: always
+    command: server /export --console-address ":9090"
+    environment:
+      MINIO_ROOT_USER: ${SERVICE_USER_MINIO}
+      MINIO_ROOT_PASSWORD: ${SERVICE_PASSWORD_MINIO}
+    volumes:
+      - uploads:/export
+
+  proxy:
+    build:
+      context: ./apps/proxy
+      dockerfile: Dockerfile.ce
+      args:
+        DOCKER_BUILDKIT: 1
+    restart: always
+    environment:
+      ONE_PLANNER_URL: ${ONE_PLANNER_PUBLIC_URL:-https://oneplan.one}
+      FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
+      BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
+      SITE_ADDRESS: :80
+      CERT_ACME_CA: ${CERT_ACME_CA:-https://acme-v02.api.letsencrypt.org/directory}
+      CERT_EMAIL: ${CERT_EMAIL:-}
+      CERT_ACME_DNS: ${CERT_ACME_DNS:-}
+      TRUSTED_PROXIES: 0.0.0.0/0
+    depends_on:
+      - web
+      - api
+      - space
+      - admin
+      - live
+      - plane-minio
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:
+  rabbitmq_data:
+  logs_api:
+  logs_worker:
+  logs_beat_worker:
+  logs_migrator:

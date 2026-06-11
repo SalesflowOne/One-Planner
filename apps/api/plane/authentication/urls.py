@@ -46,7 +46,10 @@ from .views import (
     GiteaOauthInitiateSpaceEndpoint,
 )
 
+from plane.oneplan.urls import auth_urlpatterns as oneplan_auth_urls
+
 urlpatterns = [
+    *oneplan_auth_urls,
     # credentials
     path("sign-in/", SignInAuthEndpoint.as_view(), name="sign-in"),
     path("sign-up/", SignUpAuthEndpoint.as_view(), name="sign-up"),
