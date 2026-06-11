@@ -220,9 +220,33 @@ export const WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS: Record<string, IWorkspa
     access: [EUserWorkspaceRoles.ADMIN, EUserWorkspaceRoles.MEMBER],
     highlight: (pathname: string, url: string) => pathname.includes(url),
   },
+  oneplan_command: {
+    key: "oneplan_command",
+    labelTranslationKey: "oneplan.command",
+    href: `/oneplan/command/`,
+    access: [EUserWorkspaceRoles.ADMIN, EUserWorkspaceRoles.MEMBER],
+    highlight: (pathname: string, url: string) => pathname.includes(url),
+  },
+  oneplan_focus: {
+    key: "oneplan_focus",
+    labelTranslationKey: "oneplan.focus",
+    href: `/oneplan/focus/`,
+    access: [EUserWorkspaceRoles.ADMIN, EUserWorkspaceRoles.MEMBER, EUserWorkspaceRoles.GUEST],
+    highlight: (pathname: string, url: string) => pathname.includes(url),
+  },
+  oneplan_assistant: {
+    key: "oneplan_assistant",
+    labelTranslationKey: "oneplan.assistant",
+    href: `/oneplan/assistant/`,
+    access: [EUserWorkspaceRoles.ADMIN, EUserWorkspaceRoles.MEMBER],
+    highlight: (pathname: string, url: string) => pathname.includes(url),
+  },
 };
 
 export const WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS_LINKS: IWorkspaceSidebarNavigationItem[] = [
+  WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["oneplan_command"],
+  WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["oneplan_focus"],
+  WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["oneplan_assistant"],
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["views"],
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["analytics"],
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["archives"],
