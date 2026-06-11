@@ -66,6 +66,13 @@ export interface IInstanceConfig {
   admin_base_url: string | undefined;
   is_self_managed: boolean;
   instance_changelog_url?: string;
+  // OnePlan feature flags
+  enable_oneplan_features?: boolean;
+  enable_ai_operator?: boolean;
+  enable_flow_constraints?: boolean;
+  enable_supabase_auth?: boolean;
+  enable_ceo_command_mode?: boolean;
+  ai_action_require_approval?: boolean;
 }
 
 export interface IInstanceAdmin {
