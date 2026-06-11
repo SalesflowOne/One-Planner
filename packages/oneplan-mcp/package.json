@@ -1,0 +1,23 @@
+{
+  "name": "@oneplan/mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP server for OnePlan.one — external AI agent integration",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "oneplan-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
